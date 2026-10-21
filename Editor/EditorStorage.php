@@ -231,7 +231,9 @@ class EditorStorage implements \H5peditorStorage
         $name = $temp_id . '.h5p';
         $target = $temporary_file_path . DIRECTORY_SEPARATOR . $name;
         if ($move_file) {
-            $file = move_uploaded_file($data, $target);
+            // Files can also arrive as a raw body (planner's raw-transport, no multipart); those are
+            // not PHP uploads, so move_uploaded_file() would refuse them.
+            $file = is_uploaded_file($data) ? move_uploaded_file($data, $target) : rename($data, $target);
         } else {
             try {
                 $this->filesystem->dumpFile($target, $data);
